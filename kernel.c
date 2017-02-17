@@ -1,39 +1,65 @@
 
+void readString(char*);
+void printString(char*);
 int main()
 {
-	interrupt(0x10, 0xE*256+0x48, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x65, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x6f, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x20, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x57, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x6f, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x72, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x64, 0, 0, 0); 
-	interrupt(0x10, 0xE*256+0x21, 0, 0, 0); 
-	 
-while(1);
-return 0;
+
+	char line[80];
+	printString("Enter a line: \0");
+	readString(line);
+	printString(line);
+
+	while(1);
+	return 0 ;
+
 }
+void printString(char* x) {
+  	while(*x) {
+  		interrupt(0x10, 0xE*256+(*x), 0, 0, 0);
+ 		
+ 		x++;
+  	}
+  }
+void readString(char* a)
+{
+
+	char current = 0x0;
+	int i=0 ;
+	while(current != 0xd)
+	{
+		current=interrupt(0x16,0,0,0,0);
+
+		interrupt(0x10, 0xE*256+current, 0, 0, 0);
+		
+		
+		
+		if(current != 0x8) {
+			
+			*a= current;
+			a++;
+			i++;
+
+		}
+		else {
+			interrupt(0x10, 0xE*256+'-', 0, 0, 0);
+			if(i!=0)
+				{ a-- ;
+				i-- ;
+				
+				}
+			
+		}
+		
 
 
-/*
-the interrupts can also be done this way using the actual chars insted of their hex representation 
-*/
-/*
-interrupt(0x10 , 0xE*256+'H',0,0,0);
-interrupt(0x10,0xE*256+'e',0,0,0);
-interrupt(0x10,0xE*256+'l',0,0,0);
-interrupt(0x10,0xE*256+'l',0,0,0);
-interrupt(0x10,0xE*256+'o',0,0,0);
-interrupt(0x10,0xE*256+' ',0,0,0);
-interrupt(0x10,0xE*256+'W',0,0,0);
-interrupt(0x10,0xE*256+'o',0,0,0);
-interrupt(0x10,0xE*256+'r',0,0,0);
-interrupt(0x10,0xE*256+'l',0,0,0);
-interrupt(0x10,0xE*256+'d',0,0,0);
-interrupt(0x10,0xE*256+'!',0,0,0);
+	}
 
-*/
+	*a = 0xa;
+	interrupt(0x10, 0xE*256+0xa, 0, 0, 0);
+	a++;
+	*a =0x0 ;
+
+	return ;
+
+
+}
