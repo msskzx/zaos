@@ -8,7 +8,7 @@ dd if=/dev/zero of=floppya.img bs=512 count=2880
 dd if=bootload of=floppya.img bs=512 count=1 conv=notrunc
 
 # compile kernel.c
-bcc -ansi -c -o kernel
+bcc -ansi -c -o kernel.o kernel.c
 
 # assemble kernel.asm
 as86 kernel.asm -o kernel_asm.o
