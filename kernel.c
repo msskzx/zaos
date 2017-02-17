@@ -4,6 +4,7 @@ void printString(char*);
 int main()
 {
 
+
 	char line[80];
 	printString("Enter a line: \0");
 	readString(line);
@@ -60,6 +61,4 @@ void readString(char* a)
 	*a =0x0 ;
 
 	return ;
-
-
 }
