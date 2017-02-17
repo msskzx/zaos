@@ -2,18 +2,7 @@ void printString(char*);
 
 int main()
 {
-	interrupt(0x10, 0xE*256+0x48, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x65, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x6f, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x20, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x57, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x6f, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x72, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x6c, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x64, 0, 0, 0);
-	interrupt(0x10, 0xE*256+0x21, 0, 0, 0);
+	printString("Yea! Science!\0");
 
 	while(1);
 	return 0;
@@ -22,6 +11,6 @@ int main()
 void printString(char* x) {
 	while(*x) {
 		interrupt(0x10, 0xE*256+(*x), 0, 0, 0);
-		x++
+		x++;
 	}
 }
