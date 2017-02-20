@@ -14,7 +14,7 @@ int main()
 Task1
 printString("Hello World\0");
 */
-/* 
+/*
 Task 2
 char line[80];
 	printString("Enter a line: \0");
@@ -70,7 +70,8 @@ void readString(char* a)
 
 		}
 		else {
-			interrupt(0x10, 0xE*256+'-', 0, 0, 0);
+			interrupt(0x10, 0xE*256+' ', 0, 0, 0);
+			interrupt(0x10,0xE*256+0x8,0,0,0);
 			if(i!=0)
 				{ a-- ;
 				i-- ;
