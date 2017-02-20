@@ -1,26 +1,54 @@
-
-void readString(char*);
+void handleInterrupt21(int, int, int, int);
 void printString(char*);
+void readString(char*);
+int mod(int,int);
+int div(int,int);
+void readSector(char* , int );
+
+
 int main()
 {
 
 
-	char line[80];
+/*
+Task1
+printString("Hello World\0");
+*/
+/* 
+Task 2
+char line[80];
 	printString("Enter a line: \0");
 	readString(line);
 	printString(line);
 
-	while(1);
-	return 0 ;
+*/
+/*
+Task 3
+char buffer[512];
+readSector(buffer, 30);
+printString(buffer);
+*/
+/* 
+Task 4
+makeInterrupt21();
+interrupt(0x21,0,0,0,0);
 
+*/
+while(1);
+return 0 ;
 }
 void printString(char* x) {
   	while(*x) {
   		interrupt(0x10, 0xE*256+(*x), 0, 0, 0);
- 		
  		x++;
+ 	
   	}
-  }
+	return ;
+}
+void handleInterrupt21(int ax, int bx, int cx, int dx)
+{
+	printString("Hello World!\0");
+}
 void readString(char* a)
 {
 
@@ -62,3 +90,30 @@ void readString(char* a)
 
 	return ;
 }
+void readSector(char* buffer, int sector){
+	
+   	int relative = mod(sector,18)+1;
+	int head = mod(div(sector,18),2);
+	int track = div(sector,36);
+    	interrupt(0x13, 2*256+1, buffer,track*256+relative,head*256+0); 
+ 
+	return ;
+}
+
+int mod(int a, int b){
+   while(a >= b){
+        a =a-b;
+    }
+   return a;
+
+}
+
+int div(int a, int b){
+    int q = 0;
+   while((q*b) <= a){
+        q++;
+    }
+    return q-1;
+
+}
+
