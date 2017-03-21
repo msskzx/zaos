@@ -4,36 +4,17 @@ void readString(char*);
 int mod(int,int);
 int div(int,int);
 void readSector(char* , int);
+void readFile(char* , char*);
 
 int main() {
 
-  char line[80];
+  char buffer[13312] ;/*this is the maximum size of a file*/
   makeInterrupt21();
-  interrupt(0x21,1,line,0,0);
-  interrupt(0x21,0,line,0,0);
+interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+while(1); /*hang up*/
 
-/*
-// Task1
-printString("Hello World\0");
-
-// Task 2
-char line[80];
-	printString("Enter a line: \0");
-	readString(line);
-	printString(line);
-
-// Task 3
-char buffer[512];
-readSector(buffer, 30);
-printString(buffer);
- 
-// Task 4
-makeInterrupt21();
-interrupt(0x21,0,0,0,0);
-*/
-
-  while(1);
-  return 0;
+return 0 ;
 }
 
 void printString(char* x) {
@@ -55,8 +36,14 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
         readSector(bx, cx);
       }
       else {
+        if(ax==3)
+        {
+          readFile(bx,cx);
+        }
+        else {
         printString("Error! No such function!\0");
       }
+    }
     }
   }
 }
@@ -112,4 +99,80 @@ int div(int a, int b) {
     q++;
   }
   return q-1;
+}
+
+void readFile(char* x , char* y ){
+
+  int out =0;
+  char buffer [512];
+  char read [512];
+
+  char six [6];
+  char* psix = six;
+  char* pbuffer = buffer;
+  int n =0;
+  int nn = 0;
+  int n1 =0;
+  int counter = pbuffer;
+  readSector(buffer,2);
+//  printString(buffer);
+  while(pbuffer<counter+512)
+  {
+    n =0;
+    n1 =0;
+    while(*pbuffer && n<6)
+    {
+      *psix =*pbuffer;
+      n= n+1;
+      psix = psix+1;
+      pbuffer++;
+    }
+
+    // check
+    psix = psix-6 ;
+
+    //printString(six);
+    while(*psix && *x)
+    {
+      if(*x != *psix)
+      {
+        n1 = 1;
+
+      }
+      psix = psix +1;
+      x = x+1;
+
+    }
+    psix = psix-6 ;
+
+    if(n1 == 1)
+    {
+      pbuffer+=26;
+      x = x-6;
+    }
+    else
+    {
+        x = x-6;
+        out =1;
+        break;
+    }
+    // printString(six);
+  }
+
+  if(out ==0) return;
+
+  nn = 0;
+  while(nn<26)
+  {
+    if(*pbuffer ==0){break;}
+    else
+    {
+      readSector(y , (int)*pbuffer);
+    //  printString(buffer)
+      y = y+512;
+      pbuffer++;
+    }
+    nn+=1;
+  }
+  //printString(y);
 }
