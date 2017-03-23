@@ -175,33 +175,25 @@ void readFile(char* x , char* y )
     }
   }
 
-  printString("ZERO\0");
   if(out == 0) return;
 
-  printString("ONE\0");
   while(sectors<26)
   {
-    printString("TWO\0");
     if(*pbuffer == 0){break;}
     else
     {
-      printString("THREE\0");
       readSector(y , (int)*pbuffer);
-      printString("FOUR\0");
       y+=512;
       pbuffer++;
     }
     sectors++;
   }
-
-  printString("FIVE\0");
-
 }
 
 
 void executeProgram(char* name, int segment)
 {
-  char* content;
+  char content[13312];
   char* pointer_content;
   int address = 0;
 
@@ -210,7 +202,7 @@ void executeProgram(char* name, int segment)
 
   // Transferring the program into the bottom of the segment where you want it to run.
   pointer_content = content;
-  while(*pointer_content)
+  while(address<13312)
   {
     // put current character in memory
     putInMemory(segment, address, *pointer_content);
