@@ -5,45 +5,74 @@ int mod(int,int);
 int div(int,int);
 void readSector(char* , int);
 void readFile(char* , char*);
+void executeProgram(char*, int);
+void terminate();
 
-int main() {
 
-  char buffer[13312] ;/*this is the maximum size of a file*/
+int main()
+{
+  
   makeInterrupt21();
-interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
-while(1); /*hang up*/
+  interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
-return 0 ;
+
+
+
+}
+
+void terminate()
+{
+  makeInterrupt21();
+  interrupt(0x21, 4, "shell\0", 0x2000, 0);
+
 }
 
 void printString(char* x) {
-  while(*x) {
+  while(*x && *x !='\0') {
     interrupt(0x10, 0xE*256+(*x), 0, 0, 0);
     x++;
   }
-	return ;
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx) {
-  if(ax == 0) {
+  if(ax == 0)
+  {
     printString(bx);
-  } else {
-    if(ax == 1) {
+  } else
+  {
+    if(ax == 1)
+    {
       readString(bx);
-    } else {
-      if(ax == 2) {
+    } else
+    {
+      if(ax == 2)
+      {
         readSector(bx, cx);
       }
-      else {
+      else
+      {
         if(ax==3)
         {
           readFile(bx,cx);
         }
-        else {
-        printString("Error! No such function!\0");
+        else
+        {
+          if(ax == 4)
+          {
+            executeProgram(bx, cx);
+          }
+          else
+          {
+            if(ax==5)
+            {
+              terminate();
+            }
+            else {
+            printString("Error! No such function!\0");
+            }
+          }
+        }
       }
-    }
     }
   }
 }
@@ -100,9 +129,8 @@ int div(int a, int b) {
   }
   return q-1;
 }
-
-void readFile(char* x , char* y ){
-
+void readFile(char* x , char* y )
+{
   int out =0;
   char buffer [512];
   char read [512];
@@ -110,69 +138,97 @@ void readFile(char* x , char* y ){
   char six [6];
   char* psix = six;
   char* pbuffer = buffer;
-  int n =0;
-  int nn = 0;
-  int n1 =0;
+  int n = 0;
+  int sectors = 0;
+  int match = 1;
   int counter = pbuffer;
-  readSector(buffer,2);
-//  printString(buffer);
+
+  // read all file names from the directory at sector 2
+  readSector(buffer, 2);
+
   while(pbuffer<counter+512)
   {
-    n =0;
-    n1 =0;
+    n = 0;
+    match = 1;
+
+    // load the current file name
     while(*pbuffer && n<6)
     {
       *psix =*pbuffer;
-      n= n+1;
-      psix = psix+1;
+      n++;
+      psix++;
       pbuffer++;
     }
 
-    // check
-    psix = psix-6 ;
+    // point to the beginning
+    psix-=6 ;
 
-    //printString(six);
-    while(*psix && *x)
+    // compare
+    while(*psix && *x && *x !='\0')
     {
       if(*x != *psix)
       {
-        n1 = 1;
-
+        match = 0;
       }
-      psix = psix +1;
-      x = x+1;
+      psix++;
+      x++;
 
     }
-    psix = psix-6 ;
+    // point to the beginning
+    psix-=6 ;
 
-    if(n1 == 1)
+    // is it a match
+    if(match == 0)
     {
       pbuffer+=26;
-      x = x-6;
+      x-=6;
     }
     else
     {
-        x = x-6;
-        out =1;
-        break;
+      x-=6;
+      out =1;
+      break;
     }
-    // printString(six);
   }
 
-  if(out ==0) return;
+  if(out == 0) return;
 
-  nn = 0;
-  while(nn<26)
+  while(sectors<26)
   {
-    if(*pbuffer ==0){break;}
+    if(*pbuffer == 0){break;}
     else
     {
+
       readSector(y , (int)*pbuffer);
-    //  printString(buffer)
-      y = y+512;
+      y+=512;
       pbuffer++;
     }
-    nn+=1;
+    sectors++;
   }
-  //printString(y);
+}
+
+void executeProgram(char* name, int segment)
+{
+  char content [13312];
+  char *pointer_content;
+  int address = 0;
+  // Loading the program into a buffer
+  //printString(content);
+
+  readFile(name, content);
+
+  // Transferring the program into the bottom of the segment where you want it to run.
+  //printString("salem");
+  pointer_content = content;
+  while(address<13312)
+  {
+        // put current character in memory
+    putInMemory(segment, address, *pointer_content);
+    pointer_content++;
+    address++;
+  }
+  // Setting the segment registers to that segment and setting the stack pointer
+  // to the program’s stack and jumping to the program.
+
+  launchProgram(segment);
 }
