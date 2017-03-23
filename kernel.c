@@ -6,18 +6,19 @@ int div(int,int);
 void readSector(char* , int);
 void readFile(char* , char*);
 
-int main()
-{
-  char buffer[13312];/*this is the maximum size of a file*/
+int main() {
+
+  char buffer[13312] ;/*this is the maximum size of a file*/
   makeInterrupt21();
-  interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-  interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
-  while(1); /*hang up*/
-  return 0 ;
+interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+while(1); /*hang up*/
+
+return 0 ;
 }
 
 void printString(char* x) {
-  while(*x && *x != 0) {
+  while(*x) {
     interrupt(0x10, 0xE*256+(*x), 0, 0, 0);
     x++;
   }
