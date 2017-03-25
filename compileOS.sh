@@ -13,6 +13,10 @@ dd if=dir.img of=floppya.img bs=512 count=1 seek=2 conv=notrunc
 # copy bootload to the beginning of floppya.img
 dd if=bootload of=floppya.img bs=512 count=1 conv=notrunc
 
+
+
+
+
 # compile kernel.c
 bcc -ansi -c -o kernel.o kernel.c
 
@@ -28,5 +32,17 @@ dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
 # compile
 gcc -o loadFile loadFile.c
 
+bcc -ansi -c -o shell.o shell.c
+as86 lib.asm -o lib.o
+ld86 -o shell -d shell.o lib.o
+
+
+
+./loadFile shell
+./loadFile message.txt
+./loadFile tstpr2
+./loadFile tstprg
 # excute
-chmod +x compileOS.sh
+# chmod +x compileOS.sh
+
+
