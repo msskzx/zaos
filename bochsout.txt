@@ -32,37 +32,37 @@
 00000000000i[     ]   SB16 support: yes
 00000000000i[     ]   USB support: yes
 00000000000i[     ]   VGA extension support: vbe cirrus
-00000000000i[MEM0 ] allocated memory at 0x7fd2a265d010. after alignment, vector=0x7fd2a265e000
+00000000000i[MEM0 ] allocated memory at 0x7fa62fe97010. after alignment, vector=0x7fa62fe98000
 00000000000i[MEM0 ] 32.00MB
 00000000000i[MEM0 ] mem block size = 0x00100000, blocks=32
 00000000000i[MEM0 ] rom at 0xfffe0000/131072 ('/usr/share/bochs/BIOS-bochs-latest')
-00000000000i[     ] lt_dlhandle is 0x474f670
+00000000000i[     ] lt_dlhandle is 0x3fe8650
 00000000000i[PLGIN] loaded plugin libbx_hdimage.so
-00000000000i[     ] lt_dlhandle is 0x4750000
+00000000000i[     ] lt_dlhandle is 0x3fe8fe0
 00000000000i[PLGIN] loaded plugin libbx_pci.so
-00000000000i[     ] lt_dlhandle is 0x4750b80
+00000000000i[     ] lt_dlhandle is 0x3fe9b60
 00000000000i[PLGIN] loaded plugin libbx_pci2isa.so
-00000000000i[     ] lt_dlhandle is 0x4751590
+00000000000i[     ] lt_dlhandle is 0x3fea570
 00000000000i[PLGIN] loaded plugin libbx_acpi.so
-00000000000i[     ] lt_dlhandle is 0x4751f90
+00000000000i[     ] lt_dlhandle is 0x3feaf70
 00000000000i[PLGIN] loaded plugin libbx_cmos.so
-00000000000i[     ] lt_dlhandle is 0x47528d0
+00000000000i[     ] lt_dlhandle is 0x3feb8b0
 00000000000i[PLGIN] loaded plugin libbx_dma.so
-00000000000i[     ] lt_dlhandle is 0x4753360
+00000000000i[     ] lt_dlhandle is 0x3fec340
 00000000000i[PLGIN] loaded plugin libbx_pic.so
-00000000000i[     ] lt_dlhandle is 0x4753c00
+00000000000i[     ] lt_dlhandle is 0x3fecbe0
 00000000000i[PLGIN] loaded plugin libbx_pit.so
-00000000000i[     ] lt_dlhandle is 0x4754630
+00000000000i[     ] lt_dlhandle is 0x3fed610
 00000000000i[PLGIN] loaded plugin libbx_floppy.so
-00000000000i[     ] lt_dlhandle is 0x4755220
+00000000000i[     ] lt_dlhandle is 0x3fee200
 00000000000i[PLGIN] loaded plugin libbx_vga.so
-00000000000i[     ] lt_dlhandle is 0x47559b0
+00000000000i[     ] lt_dlhandle is 0x3fee990
 00000000000i[PLGIN] loaded plugin libbx_ioapic.so
-00000000000i[     ] lt_dlhandle is 0x47563f0
+00000000000i[     ] lt_dlhandle is 0x3fef3d0
 00000000000i[PLGIN] loaded plugin libbx_keyboard.so
-00000000000i[     ] lt_dlhandle is 0x4756c90
+00000000000i[     ] lt_dlhandle is 0x3fefc70
 00000000000i[PLGIN] loaded plugin libbx_harddrv.so
-00000000000i[     ] lt_dlhandle is 0x4768d80
+00000000000i[     ] lt_dlhandle is 0x4001d60
 00000000000i[PLGIN] loaded plugin libbx_pci_ide.so
 00000000000i[PLGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[PCI  ] 440FX Host bridge present at device 0, function 0
@@ -70,7 +70,7 @@
 00000000000i[PCI  ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS ] Using local time for initial clock
-00000000000i[CMOS ] Setting initial clock to: Thu Mar 23 19:45:41 2017 (time0=1490291141)
+00000000000i[CMOS ] Setting initial clock to: Sat Mar 25 17:47:39 2017 (time0=1490456859)
 00000000000i[PLGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA  ] channel 4 used by cascade
 00000000000i[PLGIN] init_dev of 'pic' plugin device by virtual method
@@ -214,20 +214,3 @@
 00001602279i[VBIOS] VBE Bios $Id: vbe.c,v 1.64 2011/07/19 18:25:05 vruppert Exp $
 00003333331i[XGUI ] charmap update. Font Height is 16
 00032315167i[BIOS ] Booting from 0000:7c00
-00033919559i[CPU0 ] LOCK prefix unallowed (op1=0x53, modrm=0x00)
-00033919563i[CPU0 ] LOCK prefix unallowed (op1=0x53, modrm=0x00)
-00126370000i[KBD  ] internal keyboard buffer full, ignoring scancode.(1c)
-00127040000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00127040000i[KBD  ] internal keyboard buffer full, ignoring scancode.(9c)
-00128350000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00128350000i[KBD  ] internal keyboard buffer full, ignoring scancode.(1c)
-00128840000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00128840000i[KBD  ] internal keyboard buffer full, ignoring scancode.(9c)
-00129880000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00129880000i[KBD  ] internal keyboard buffer full, ignoring scancode.(1c)
-00130440000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00130440000i[KBD  ] internal keyboard buffer full, ignoring scancode.(9c)
-00131410000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00131410000i[KBD  ] internal keyboard buffer full, ignoring scancode.(1c)
-00131990000i[KBD  ] internal keyboard buffer full, ignoring scancode.(e0)
-00131990000i[KBD  ] internal keyboard buffer full, ignoring scancode.(9c)
