@@ -261,17 +261,13 @@ void executeProgram(char* name, int segment)
   pointer_content = content;
   while(address<13312)
   {
-        // put current character in memory
+    // put current character in memory
     putInMemory(segment, address, *pointer_content);
     pointer_content++;
     address++;
   }
+
   // Setting the segment registers to that segment and setting the stack pointer
   // to the program’s stack and jumping to the program.
-
-
   launchProgram(segment);
-
-
 }
-
