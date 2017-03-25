@@ -35,9 +35,13 @@ gcc -o loadFile loadFile.c
 bcc -ansi -c -o shell.o shell.c
 as86 lib.asm -o lib.o
 ld86 -o shell -d shell.o lib.o
+
+
+
 ./loadFile shell
-
-
+./loadFile message.txt
+./loadFile tstpr2
+./loadFile tstprg
 # excute
 # chmod +x compileOS.sh
 

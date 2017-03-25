@@ -8,13 +8,13 @@ void readFile(char* , char*);
 void executeProgram(char*, int);
 void terminate();
 
-
 int main()
 {
-  
-  makeInterrupt21();
-  interrupt(0x21, 4, "shell\0", 0x2000, 0);
 
+  makeInterrupt21();
+  //interrupt(0x21,5, 0, 0, 0);
+  interrupt(0x21, 4, "shell\0", 0x2000, 0);
+//  interrupt(0x21,5, 0, 0, 0);
 
 
 
@@ -22,9 +22,10 @@ int main()
 
 void terminate()
 {
+  //printString("salem\n\0");
   makeInterrupt21();
+  //interrupt(0x21,0,"salem\0",0,0);
   interrupt(0x21, 4, "shell\0", 0x2000, 0);
-
 }
 
 void printString(char* x) {
@@ -35,6 +36,7 @@ void printString(char* x) {
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx) {
+
   if(ax == 0)
   {
     printString(bx);
@@ -65,7 +67,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
           {
             if(ax==5)
             {
-              terminate();
+
+             terminate();
+
             }
             else {
             printString("Error! No such function!\0");
@@ -75,6 +79,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
       }
     }
   }
+
+
 }
 
 void readString(char* a) {
@@ -142,70 +148,97 @@ void readFile(char* x , char* y )
   int sectors = 0;
   int match = 1;
   int counter = pbuffer;
+  int c=0 ;
+  int cc=0 ;
 
   // read all file names from the directory at sector 2
   readSector(buffer, 2);
-
   while(pbuffer<counter+512)
   {
     n = 0;
     match = 1;
+    c =0;
+    cc=0 ;
 
     // load the current file name
-    while(*pbuffer && n<6)
+    while(*pbuffer && n<6 && *pbuffer != 0x00)
     {
       *psix =*pbuffer;
       n++;
       psix++;
       pbuffer++;
     }
-
+    if(n != 6)
+    {
+      pbuffer =pbuffer+6-n ;
+    }
     // point to the beginning
-    psix-=6 ;
+    psix-=n ;
+    while(*x && *x != '\0' && *x !='\n')
+    {
+      c++;
+      x++ ;
+    }
+    x = x-c ;
 
-    // compare
-    while(*psix && *x && *x !='\0')
+    if(c != n)
+    {
+      pbuffer+=26 ;
+    }
+else {
+
+
+    while(cc<c)
     {
       if(*x != *psix)
       {
         match = 0;
       }
+
       psix++;
       x++;
+      cc++;
 
     }
     // point to the beginning
-    psix-=6 ;
+    psix-=cc ;
 
     // is it a match
     if(match == 0)
     {
       pbuffer+=26;
-      x-=6;
+      x-=cc;
+
     }
     else
     {
-      x-=6;
+      x-=cc;
       out =1;
       break;
-    }
+    }}
   }
 
   if(out == 0) return;
-
   while(sectors<26)
   {
-    if(*pbuffer == 0){break;}
+    if(*pbuffer == 0x00){
+
+break;}
     else
     {
 
       readSector(y , (int)*pbuffer);
       y+=512;
       pbuffer++;
+
+
+      printString(y);
     }
     sectors++;
   }
+
 }
+
 
 void executeProgram(char* name, int segment)
 {
@@ -214,7 +247,6 @@ void executeProgram(char* name, int segment)
   int address = 0;
   // Loading the program into a buffer
   //printString(content);
-
   readFile(name, content);
 
   // Transferring the program into the bottom of the segment where you want it to run.
@@ -230,5 +262,8 @@ void executeProgram(char* name, int segment)
   // Setting the segment registers to that segment and setting the stack pointer
   // to the program’s stack and jumping to the program.
 
+
   launchProgram(segment);
+
+
 }
