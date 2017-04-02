@@ -9,30 +9,17 @@ void executeProgram(char*, int);
 void terminate();
 void writeFile(char*, char*, int);
 void writeSector(char* , int);
+void deleteFile(char*);
 
 
 int main()
 {
-
-  int i=0;
-  char buffer1[13312];
-  char buffer2[13312];
-  buffer2[0]='h';
-  buffer2[1]='e';
-  buffer2[2]='l';
-  buffer2[3]='l';
-  buffer2[4]='o';
-  for(i=5; i<13312; i++)
-   {
-     buffer2[i]=0x0;
-   }
-  makeInterrupt21();
-  interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
-  interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-  interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
-  while(1);
-
-
+  char buffer[13312];
+makeInterrupt21();
+interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+while(1);
 }
 
 void terminate()
@@ -104,7 +91,13 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                   writeSector(bx,cx);
                 }
                 else {
-            printString("Error! No such function!\0");
+		  if(ax==7)
+		  {
+		    deleteFile(bx);
+		  }
+		  else {
+           	    printString("Error! No such function!\0");
+		  }
                 }
               }
             }
@@ -169,6 +162,113 @@ int div(int a, int b) {
   }
   return q-1;
 }
+
+void deleteFile(char* name)
+{
+  int out =0;
+  char buffer [512];
+  char map [512];
+  char read [512];
+
+  char six [6];
+  char* psix = six;
+  char* pbuffer = buffer;
+  char* pmap = map;
+  int n = 0;
+  int sectors = 0;
+  int match = 1;
+  int counter = pbuffer;
+  int c=0 ;
+  int cc=0 ;
+
+  readSector(map,1);
+  readSector(buffer, 2);
+  while(pbuffer<counter+512)
+  {
+    n = 0;
+    match = 1;
+    c =0;
+    cc=0 ;
+
+    // load the current file name
+    while(*pbuffer && n<6 && *pbuffer != 0x00)
+    {
+      *psix =*pbuffer;
+      n++;
+      psix++;
+      pbuffer++;
+    }
+    if(n != 6)
+    {
+      pbuffer =pbuffer+6-n ;
+    }
+    // point to the beginning
+    psix-=n ;
+    while(*name && *name != '\0' && *name !='\n')
+    {
+      c++;
+      name++ ;
+    }
+    name = name-c ;
+
+    if(c != n)
+    {
+      pbuffer+=26 ;
+    }
+else {
+
+
+    while(cc<c)
+    {
+      if(*name != *psix)
+      {
+        match = 0;
+      }
+
+      psix++;
+      name++;
+      cc++;
+
+    }
+    // point to the beginning
+    psix-=cc ;
+
+    // is it a match
+    if(match == 0)
+    {
+      pbuffer+=26;
+      name-=cc;
+
+    }
+    else
+    {
+      name-=cc;
+      out =1;
+      break;
+    }}
+  }
+
+  if(out == 0) return;
+  *(pbuffer-6)=0x00;
+  while(sectors<26)
+  {
+    if(*pbuffer == 0x00){
+
+break;}
+    else
+    {
+
+      *(pmap + (int)*pbuffer +1) =0x00;
+      pbuffer++;
+
+    }
+    sectors++;
+  }
+
+  writeSector(map,1);
+  writeSector(buffer,2);
+}
+
 void readFile(char* x , char* y )
 {
   int out =0;
