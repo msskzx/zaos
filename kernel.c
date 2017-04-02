@@ -7,19 +7,19 @@ void readSector(char* , int);
 void readFile(char* , char*);
 void executeProgram(char*, int);
 void terminate();
+void writeFile(char*, char*, int);
+void writeSector(char* , int);
+void deleteFile(char*);
+
 
 int main()
 {
-
-
- makeInterrupt21();
- //interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
-  //interrupt(0x21,5, 0, 0, 0);
-  interrupt(0x21, 4, "shell\0", 0x2000, 0);
-  //interrupt(0x21,5, 0, 0, 0);
-
-//terminate();
-
+  char buffer[13312];
+makeInterrupt21();
+interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+while(1);
 }
 
 void terminate()
@@ -81,7 +81,25 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
 
             }
             else {
-            printString("Error! No such function!\0");
+              if(ax==8)
+              {
+                writeFile(bx,cx,dx);
+              }
+              else {
+                if(ax==6)
+                {
+                  writeSector(bx,cx);
+                }
+                else {
+		  if(ax==7)
+		  {
+		    deleteFile(bx);
+		  }
+		  else {
+           	    printString("Error! No such function!\0");
+		  }
+                }
+              }
             }
           }
         }
@@ -144,6 +162,113 @@ int div(int a, int b) {
   }
   return q-1;
 }
+
+void deleteFile(char* name)
+{
+  int out =0;
+  char buffer [512];
+  char map [512];
+  char read [512];
+
+  char six [6];
+  char* psix = six;
+  char* pbuffer = buffer;
+  char* pmap = map;
+  int n = 0;
+  int sectors = 0;
+  int match = 1;
+  int counter = pbuffer;
+  int c=0 ;
+  int cc=0 ;
+
+  readSector(map,1);
+  readSector(buffer, 2);
+  while(pbuffer<counter+512)
+  {
+    n = 0;
+    match = 1;
+    c =0;
+    cc=0 ;
+
+    // load the current file name
+    while(*pbuffer && n<6 && *pbuffer != 0x00)
+    {
+      *psix =*pbuffer;
+      n++;
+      psix++;
+      pbuffer++;
+    }
+    if(n != 6)
+    {
+      pbuffer =pbuffer+6-n ;
+    }
+    // point to the beginning
+    psix-=n ;
+    while(*name && *name != '\0' && *name !='\n')
+    {
+      c++;
+      name++ ;
+    }
+    name = name-c ;
+
+    if(c != n)
+    {
+      pbuffer+=26 ;
+    }
+else {
+
+
+    while(cc<c)
+    {
+      if(*name != *psix)
+      {
+        match = 0;
+      }
+
+      psix++;
+      name++;
+      cc++;
+
+    }
+    // point to the beginning
+    psix-=cc ;
+
+    // is it a match
+    if(match == 0)
+    {
+      pbuffer+=26;
+      name-=cc;
+
+    }
+    else
+    {
+      name-=cc;
+      out =1;
+      break;
+    }}
+  }
+
+  if(out == 0) return;
+  *(pbuffer-6)=0x00;
+  while(sectors<26)
+  {
+    if(*pbuffer == 0x00){
+
+break;}
+    else
+    {
+
+      *(pmap + (int)*pbuffer +1) =0x00;
+      pbuffer++;
+
+    }
+    sectors++;
+  }
+
+  writeSector(map,1);
+  writeSector(buffer,2);
+}
+
 void readFile(char* x , char* y )
 {
   int out =0;
@@ -159,6 +284,7 @@ void readFile(char* x , char* y )
   int counter = pbuffer;
   int c=0 ;
   int cc=0 ;
+
 
   // read all file names from the directory at sector 2
   readSector(buffer, 2);
@@ -231,12 +357,12 @@ else {
   while(sectors<26)
   {
     if(*pbuffer == 0x00){
-
-break;}
+      break;}
     else
     {
 
       readSector(y , (int)*pbuffer);
+
       y+=512;
       pbuffer++;
 
@@ -246,6 +372,13 @@ break;}
 
 }
 
+void writeSector(char* buffer , int sector){
+  int relative = mod(sector,18)+1;
+  int head = mod(div(sector,18),2);
+  int track = div(sector,36);
+  interrupt(0x13, 3*256+1, buffer,track*256+relative,head*256+0);
+  return ;
+}
 
 void executeProgram(char* name, int segment)
 {
@@ -270,4 +403,83 @@ void executeProgram(char* name, int segment)
   // Setting the segment registers to that segment and setting the stack pointer
   // to the program’s stack and jumping to the program.
   launchProgram(segment);
+}
+void writeFile(char* name, char* buffer, int secNum)
+{
+  char map [512];
+  char directory [512];
+  char* p_directory = directory;
+  char* p_map = map;
+  int counter = 0;
+  int counter2 = 1;
+  int name_L =0 ;
+  readSector(map, 1);
+  readSector(directory, 2);
+  while(counter < 512)
+  {
+    if(*p_directory==0x00)
+    {
+      break ;
+    }
+    else {
+
+      counter+=32 ;
+      p_directory+=32 ;
+    }
+
+  }
+  if(counter>=512)
+  {
+    interrupt(0x21, 0, "no free space in directory \0", 0, 0);
+    return ;
+  }
+
+  while(name_L <6 && *name != "\0" && *name && *name !='\n')
+  {
+    *p_directory=*name ;
+    name++;
+    p_directory++;
+    name_L++;
+  }
+
+  while(name_L <6)
+  {
+
+    *p_directory=0x00 ;
+    p_directory++;
+    name_L++;
+  }
+
+  while(counter2<512 && secNum >0)
+  {
+    if( *p_map == 0x00)
+    {
+      *p_map ==0xFF ;
+      secNum-- ;
+
+      *p_directory= (char)counter2 ;
+      p_directory++;
+      p_map++;
+
+      writeSector(buffer,counter2);
+      counter2++;
+
+      buffer+=512 ;
+
+    }
+    else {
+      p_map++;
+      counter2++;
+    }
+
+  }
+  if(secNum !=0 )
+  {
+    interrupt(0x21, 0, "no free space in map \0", 0, 0);
+    return ;
+  }
+
+      writeSector(directory,2);
+      writeSector(map,1);
+
 }
