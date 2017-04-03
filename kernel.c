@@ -14,12 +14,10 @@ void deleteFile(char*);
 
 int main()
 {
-  char buffer[13312];
-makeInterrupt21();
-interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
-while(1);
+  makeInterrupt21();
+  interrupt(0x21, 4, "shell\0", 0x2000, 0);
+
+  while(1);
 }
 
 void terminate()
@@ -93,6 +91,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                 else {
 		  if(ax==7)
 		  {
+        printString("HERE\0");
 		    deleteFile(bx);
 		  }
 		  else {
@@ -183,6 +182,7 @@ void deleteFile(char* name)
 
   readSector(map,1);
   readSector(buffer, 2);
+  printString("THERE\0");
   while(pbuffer<counter+512)
   {
     n = 0;
