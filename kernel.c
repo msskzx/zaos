@@ -91,7 +91,6 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                 else {
 		  if(ax==7)
 		  {
-        printString("HERE\0");
 		    deleteFile(bx);
 		  }
 		  else {
@@ -182,7 +181,6 @@ void deleteFile(char* name)
 
   readSector(map,1);
   readSector(buffer, 2);
-  printString("THERE\0");
   while(pbuffer<counter+512)
   {
     n = 0;
@@ -269,6 +267,7 @@ break;}
   writeSector(buffer,2);
 }
 
+// (filename, output)
 void readFile(char* x , char* y )
 {
   int out =0;
@@ -404,6 +403,7 @@ void executeProgram(char* name, int segment)
   // to the program’s stack and jumping to the program.
   launchProgram(segment);
 }
+
 void writeFile(char* name, char* buffer, int secNum)
 {
   char map [512];
