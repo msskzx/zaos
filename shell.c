@@ -25,6 +25,7 @@ int main()
   char* line_pointer = line;
   char* directory_pointer = directory;
   char* base_address = directory;
+  char* cur_file_name_pointer = cur_file_name;
 
 
 while(1)
@@ -208,6 +209,8 @@ else {
         while(directory_pointer < base_address+512)
         {
           j = 0;
+          num_of_sectors = 0;
+          cur_file_name_pointer = cur_file_name;
 
           while(j<7)
           {
@@ -219,7 +222,7 @@ else {
           // load the current file name
           while(*directory_pointer && j<6 && *directory_pointer != 0x00)
           {
-              cur_file_name[j] = *directory_pointer;
+            *cur_file_name_pointer = *directory_pointer;
             j++;
             directory_pointer++;
           }
