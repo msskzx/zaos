@@ -10,11 +10,15 @@ int main()
   int c1 = 0;
   int sector = 6;
   int i=0 ;
+  int counter =0 ;
+  int counter2 =0;
   char* pfile = filename;
   char* pfile1 = filename1;
 
   char* pbuffer = buffer;
   char* file_cur_char = content;
+  char line [13312];
+  char* line_pointer = line;
 
 while(1)
 {
@@ -38,7 +42,6 @@ sector =6 ;
 
 interrupt(0x21,0, "SHELL> \0", 0, 0);
 interrupt(0x21,1, buffer, 0, 0);
-interrupt(0x21,0, buffer, 0, 0);
 
 if( *pbuffer=='v' && *(pbuffer +1)=='i' && *(pbuffer +2)=='e' && *(pbuffer +3)=='w' && *(pbuffer +4)==' ')
 {
@@ -147,32 +150,41 @@ else {
       *pfile ='\0';
       pfile = pfile-c+2;
       pbuffer = pbuffer-c;
-
+      counter2=0 ;
       while(1)
       {
-          char line [13312];
-          char* line_pointer = line;
+        counter =0 ;
+
+        for( i=0 ;i<13312 ;i++)
+        {
+          line[i]='\0';
+
+        }
           // read line
+          interrupt(0x21, 0, "line: \0", 0, 0);
           interrupt(0x21,1 , line, 0, 0);
 
-          while(*line_pointer)
+          while(*line_pointer != '\0' &&  *line_pointer !='\n' && counter < 13312)
           {
               *file_cur_char = *line_pointer;
               file_cur_char++;
               line_pointer++;
+              counter++;
+              counter2++;
           }
+
           *line_pointer = '\0';
-
-          // TODO delete
-          interrupt(0x21, 0, "line: \0", 0, 0);
-          interrupt(0x21, 0, line, 0, 0);
-
-          // TODO fix
-        //   if(*line_pointer == '\n')
+          *file_cur_char='\n';
+          file_cur_char++;
+          line_pointer-=counter ;
+          counter2++;
+          if(line[0] == '\n' || line[1]=='\0')
               break;
       }
 
       // create the new file
+      file_cur_char-=counter2;
+
       interrupt(0x21, 8, filename, content, sector);
 
       interrupt(0x21, 0, "\n\0", 0, 0);
