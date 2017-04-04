@@ -220,7 +220,7 @@ int main()
                                                 // dir
                                                 pbuffer+=4;
                                                 interrupt(0x21, 2, directory, 2, 0);
-
+                                                
                                                 while(directory_pointer < base_address+512)
                                                 {
                                                         j = 0;
@@ -242,10 +242,12 @@ int main()
                                                                 directory_pointer++;
                                                         }
 
+                                                        *cur_file_name_pointer = '\0';
+
                                                         if(j!=0)
                                                         {
                                                                 // print file name
-                                                                //   interrupt(0x21, 0, cur_file_name, 0, 0);
+                                                                  interrupt(0x21, 0, cur_file_name, 0, 0);
                                                         }
 
                                                         while(*directory_pointer && j<32 && *directory_pointer != 0x00)
@@ -260,8 +262,10 @@ int main()
                                                         // TODO print number of sectors
                                                         // interrupt(0x21, 0, num_of_sectors, 0, 0);
 
-                                                        interrupt(0x21, 0, "\n\0", 0, 0);
+                                                        interrupt(0x21, 0, "HERE\n\0", 0, 0);
+                                                        interrupt(0x21, 0, cur_file_name, 0, 0);
 
+                                                        interrupt(0x21, 0, "\n\0", 0, 0);
                                                 }
 
                                         }
@@ -282,6 +286,8 @@ int main()
                                                         }
                                                         pbuffer++;
 
+                                                        *filename_pointer = '\0';
+
                                                         j = 0;
 
                                                         // read filename1
@@ -293,6 +299,8 @@ int main()
                                                                 j++;
                                                         }
                                                         pbuffer++;
+
+                                                        *filename1_pointer = '\0';
 
                                                         // read the first file
                                                         interrupt(0x21, 3, filename, content, 0);
