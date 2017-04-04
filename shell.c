@@ -34,11 +34,16 @@ int main()
         {
                 for( i=0; i<13312; i++)
                 {
+                    if(i<7)
+                    {
+                        cur_file_name[i] = '\0';
+                    }
                         if(i<512)
                         {
                                 buffer[i]='\0';
                                 filename[i]='\0';
                                 filename1[i]='\0';
+                                directory[i] = '\0';
                         }
                         buffer1[i]='\0';
                         content[i]='\0';
@@ -47,8 +52,22 @@ int main()
                 c=0;
                 c1 =0;
                 sector =6;
+                i=0;
+                counter =0;
+                counter2 =0;
+                num_of_sectors = 0;
+                j = 0;
 
-
+                pfile = filename;
+                pfile1 = filename1;
+                pbuffer = buffer;
+                file_cur_char = content;
+                line_pointer = line;
+                directory_pointer = directory;
+                base_address = directory;
+                cur_file_name_pointer = cur_file_name;
+                filename_pointer = filename;
+                filename1_pointer = filename1;
 
                 interrupt(0x21,0, "SHELL> \0", 0, 0);
                 interrupt(0x21,1, buffer, 0, 0);
@@ -60,13 +79,10 @@ int main()
 
                         while(*pbuffer && c<512)
                         {
-
-
                                 *pfile = *pbuffer;
                                 pbuffer++;
                                 pfile++;
                                 c++;
-
                         }
                         pfile--;
                         *pfile ='\0';
@@ -93,13 +109,10 @@ int main()
 
                         while(*pbuffer && c<512)
                         {
-
-
                                 *pfile = *pbuffer;
                                 pbuffer++;
                                 pfile++;
                                 c++;
-
                         }
 
                         pfile--;
@@ -168,7 +181,6 @@ int main()
                                                 for( i=0; i<13312; i++)
                                                 {
                                                         line[i]='\0';
-
                                                 }
                                                 // read line
                                                 interrupt(0x21,1, line, 0, 0);
@@ -207,12 +219,6 @@ int main()
                                         {
                                                 // dir
                                                 pbuffer+=4;
-                                                j = 0;
-                                                while(j<13132)
-                                                {
-                                                        directory[j] = '\0';
-                                                        j++;
-                                                }
                                                 interrupt(0x21, 2, directory, 2, 0);
 
                                                 while(directory_pointer < base_address+512)
@@ -265,15 +271,6 @@ int main()
                                                 {
                                                         // copy
                                                         pbuffer+=5;
-                                                        j = 0;
-
-                                                        while(j<512)
-                                                        {
-                                                                filename[j] = '\0';
-                                                                filename1[j] = '\0';
-                                                        }
-
-                                                        j = 0;
 
                                                         // read filename
                                                         while(*pbuffer && j<512 && *pbuffer != ' ')
