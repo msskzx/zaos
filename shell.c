@@ -312,7 +312,6 @@ int main()
                                                         interrupt(0x21, 8, filename1, content, sector);
 
                                                         interrupt(0x21, 0, "\n\0", 0, 0);
-                                                        pbuffer-=7;
                                                 }
                                                 else
                                                 {
