@@ -29,15 +29,14 @@ int main()
         char* filename_pointer = filename;
         char* filename1_pointer = filename1;
 
-
         while(1)
         {
                 for( i=0; i<13312; i++)
                 {
-                    if(i<7)
-                    {
-                        cur_file_name[i] = '\0';
-                    }
+                        if(i<7)
+                        {
+                                cur_file_name[i] = '\0';
+                        }
                         if(i<512)
                         {
                                 buffer[i]='\0';
@@ -47,7 +46,6 @@ int main()
                         }
                         buffer1[i]='\0';
                         content[i]='\0';
-
                 }
                 c=0;
                 c1 =0;
@@ -125,8 +123,6 @@ int main()
                         interrupt(0x21,4,filename,0x2000,0);
                         interrupt(0x21,0,"\n\0", 0, 0);
                         pbuffer-=8;
-
-
                 }
                 else {
                         if( *pbuffer=='d' && *(pbuffer + 1)=='e' && *(pbuffer + 2)=='l' && *(pbuffer + 3)=='e' && *(pbuffer + 4)=='t'&& *(pbuffer + 5)=='e' && *(pbuffer + 6)==' ')
@@ -219,8 +215,11 @@ int main()
                                         {
                                                 // dir
                                                 pbuffer+=4;
+                                                interrupt(0x21, 0, "Name        \0", 0, 0);
+                                                interrupt(0x21, 0, "Size\n\0", 0, 0);
+
                                                 interrupt(0x21, 2, directory, 2, 0);
-                                                
+
                                                 while(directory_pointer < base_address+512)
                                                 {
                                                         j = 0;
@@ -238,36 +237,41 @@ int main()
                                                         while(*directory_pointer && j<6 && *directory_pointer != 0x00)
                                                         {
                                                                 *cur_file_name_pointer = *directory_pointer;
+                                                                cur_file_name_pointer++;
                                                                 j++;
                                                                 directory_pointer++;
                                                         }
 
                                                         *cur_file_name_pointer = '\0';
 
+                                                        directory_pointer = directory_pointer+6-j;
+
                                                         if(j!=0)
                                                         {
+                                                                j = 6;
                                                                 // print file name
-                                                                  interrupt(0x21, 0, cur_file_name, 0, 0);
-                                                        }
+                                                                interrupt(0x21, 0, cur_file_name, 0, 0);
+                                                                interrupt(0x21, 0, "    \0", 0, 0);
 
-                                                        while(*directory_pointer && j<32 && *directory_pointer != 0x00)
+                                                                // number of sectors
+                                                                while(*directory_pointer && j<32 && *directory_pointer != 0x00)
+                                                                {
+                                                                        num_of_sectors++;
+                                                                        j++;
+                                                                        directory_pointer++;
+                                                                }
+
+                                                                // print file size
+                                                                // TODO fix
+                                                                interrupt(0x21, 0, (char)num_of_sectors, 0, 0);
+
+                                                                interrupt(0x21, 0, "\n\0", 0, 0);
+                                                        }
+                                                        else
                                                         {
-                                                                num_of_sectors++;
-                                                                j++;
-                                                                directory_pointer++;
+                                                            directory_pointer+=32;
                                                         }
-                                                        directory_pointer-=j+32;
-
-                                                        // print file size
-                                                        // TODO print number of sectors
-                                                        // interrupt(0x21, 0, num_of_sectors, 0, 0);
-
-                                                        interrupt(0x21, 0, "HERE\n\0", 0, 0);
-                                                        interrupt(0x21, 0, cur_file_name, 0, 0);
-
-                                                        interrupt(0x21, 0, "\n\0", 0, 0);
                                                 }
-
                                         }
                                         else
                                         {
