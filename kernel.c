@@ -138,6 +138,8 @@ void readString(char* a) {
 
 	return ;
 }
+
+// (output, sector_number)
 void readSector(char* buffer, int sector){
   int relative = mod(sector,18)+1;
 	int head = mod(div(sector,18),2);

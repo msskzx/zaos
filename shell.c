@@ -5,6 +5,8 @@ int main()
   char filename [512];
   char filename1 [512];
   char content[13312];
+  char directory[512];
+  char cur_file_name[7];
 
   int c = 0;
   int c1 = 0;
@@ -12,13 +14,18 @@ int main()
   int i=0 ;
   int counter =0 ;
   int counter2 =0;
+  int num_of_sectors = 0;
+  int j = 0;
+
   char* pfile = filename;
   char* pfile1 = filename1;
-
   char* pbuffer = buffer;
   char* file_cur_char = content;
   char line [13312];
   char* line_pointer = line;
+  char* directory_pointer = directory;
+  char* base_address = directory;
+
 
 while(1)
 {
@@ -161,7 +168,6 @@ else {
 
         }
           // read line
-          interrupt(0x21, 0, "line: \0", 0, 0);
           interrupt(0x21,1 , line, 0, 0);
 
           while(*line_pointer != '\0' &&  *line_pointer !='\n' && counter < 13312)
@@ -193,10 +199,53 @@ else {
     }
     else
     {
-      if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r' && *(pbuffer + 3)==' ')
+        // TODO fix
+      if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r')
       {
         // dir
-        // TODO
+        interrupt(0x21, 2, directory, 2, 0);
+
+        while(directory_pointer < base_address+512)
+        {
+          j = 0;
+
+          while(j<7)
+          {
+              cur_file_name[j] = '\0';
+              j++;
+          }
+          j = 0;
+
+          // load the current file name
+          while(*directory_pointer && j<6 && *directory_pointer != 0x00)
+          {
+              cur_file_name[j] = *directory_pointer;
+            j++;
+            directory_pointer++;
+          }
+
+          if(j!=0)
+          {
+              // print file name
+              interrupt(0x21, 0, cur_file_name, 0, 0);
+          }
+
+          while(*directory_pointer && j<32 && *directory_pointer != 0x00)
+          {
+            num_of_sectors++;
+            j++;
+            directory_pointer++;
+          }
+          directory_pointer-=j+32;
+
+          // print file size
+          // TODO print number of sectors
+          // interrupt(0x21, 0, num_of_sectors, 0, 0);
+
+        interrupt(0x21, 0, "\n\0", 0, 0);
+
+        }
+
       }
       else
       {
