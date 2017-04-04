@@ -26,6 +26,8 @@ int main()
   char* directory_pointer = directory;
   char* base_address = directory;
   char* cur_file_name_pointer = cur_file_name;
+  char* filename_pointer = filename;
+  char* filename1_pointer = filename1;
 
 
 while(1)
@@ -201,9 +203,16 @@ else {
     else
     {
         // TODO fix
-      if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r')
+      if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r' && *(pbuffer + 3) == 'r')
       {
-        // dir
+          // dir
+         pbuffer+=4;
+        j = 0;
+        while(j<13132)
+        {
+            directory[j] = '\0';
+            j++;
+        }
         interrupt(0x21, 2, directory, 2, 0);
 
         while(directory_pointer < base_address+512)
@@ -230,7 +239,7 @@ else {
           if(j!=0)
           {
               // print file name
-              interrupt(0x21, 0, cur_file_name, 0, 0);
+            //   interrupt(0x21, 0, cur_file_name, 0, 0);
           }
 
           while(*directory_pointer && j<32 && *directory_pointer != 0x00)
@@ -256,22 +265,37 @@ else {
         {
           // copy
           pbuffer+=5;
-          while(*pbuffer && c<512)
+          j = 0;
+
+          while(j<512)
           {
-            *pfile = *pbuffer;
-            pbuffer++;
-            pfile++;
-            c++;
+              filename[j] = '\0';
+              filename1[j] = '\0';
           }
 
-          pfile--;
-          *pfile ='\0';
-          pfile--;
-          *pfile ='\0';
-          pfile = pfile-c+2;
-          pbuffer = pbuffer-c;
+          j = 0;
 
-          // TODO read filename1
+          // read filename
+          while(*pbuffer && j<512 && *pbuffer != ' ')
+          {
+            *filename_pointer = *pbuffer;
+            pbuffer++;
+            filename_pointer++;
+            j++;
+          }
+          pbuffer++;
+
+          j = 0;
+
+          // read filename1
+          while(*pbuffer && j<512 && *pbuffer != ' ')
+          {
+            *filename1_pointer = *pbuffer;
+            pbuffer++;
+            filename1_pointer++;
+            j++;
+          }
+          pbuffer++;
 
           // read the first file
           interrupt(0x21, 3, filename, content, 0);
