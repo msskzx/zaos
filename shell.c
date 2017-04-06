@@ -1,3 +1,6 @@
+int mod(int,int);
+int div(int,int);
+
 int main()
 {
         char buffer [512];
@@ -7,6 +10,7 @@ int main()
         char content[13312];
         char directory[512];
         char cur_file_name[7];
+        char chars_num_of_sectors[6];
 
         int c = 0;
         int c1 = 0;
@@ -15,7 +19,9 @@ int main()
         int counter =0;
         int counter2 =0;
         int num_of_sectors = 0;
+        int num_of_sectors_dup = 0;
         int j = 0;
+        int cur_digit = 0;
 
         char* pfile = filename;
         char* pfile1 = filename1;
@@ -33,6 +39,10 @@ int main()
         {
                 for( i=0; i<13312; i++)
                 {
+                        if(i<6)
+                        {
+                            chars_num_of_sectors[i] = '\0';
+                        }
                         if(i<7)
                         {
                                 cur_file_name[i] = '\0';
@@ -55,6 +65,7 @@ int main()
                 counter2 =0;
                 num_of_sectors = 0;
                 j = 0;
+                cur_digit = 0;
 
                 pfile = filename;
                 pfile1 = filename1;
@@ -144,7 +155,6 @@ int main()
                                 pfile1 = pfile1-c+2;
                                 pbuffer = pbuffer-c;
 
-                                // TODO fix
                                 interrupt(0x21, 7, filename1, 0, 0);
                                 interrupt(0x21, 0, "\n\0", 0, 0);
                                 pbuffer-=7;
@@ -210,8 +220,7 @@ int main()
                                 }
                                 else
                                 {
-                                        // TODO fix
-                                        if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r' && *(pbuffer + 3) == 'r')
+                                        if( *pbuffer=='d' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='r' && (*(pbuffer + 3) == ' ' || *(pbuffer + 3) == '\n' || *(pbuffer + 3) == '\0'))
                                         {
                                                 // dir
                                                 pbuffer+=4;
@@ -261,15 +270,31 @@ int main()
                                                                         directory_pointer++;
                                                                 }
 
+                                                                // calculating the size
+                                                                num_of_sectors *= 512;
+                                                                num_of_sectors_dup = num_of_sectors;
+                                                                j = 0;
+                                                                while(num_of_sectors_dup>0)
+                                                                {
+                                                                        j++;
+                                                                        num_of_sectors_dup = div(num_of_sectors_dup, 10);
+                                                                }
+                                                                while(num_of_sectors>0)
+                                                                {
+                                                                        j--;
+                                                                        cur_digit = mod(num_of_sectors, 10);
+                                                                        num_of_sectors = div(num_of_sectors, 10);
+                                                                        chars_num_of_sectors[j] = (char)((int)'0'+ cur_digit);
+                                                                }
+
                                                                 // print file size
-                                                                // TODO fix
-                                                                interrupt(0x21, 0, (char)num_of_sectors, 0, 0);
+                                                                interrupt(0x21, 0, chars_num_of_sectors, 0, 0);
 
                                                                 interrupt(0x21, 0, "\n\0", 0, 0);
                                                         }
                                                         else
                                                         {
-                                                            directory_pointer+=32;
+                                                                directory_pointer+=32;
                                                         }
                                                 }
                                         }
@@ -295,7 +320,7 @@ int main()
                                                         j = 0;
 
                                                         // read filename1
-                                                        while(*pbuffer && j<512 && *pbuffer != ' ')
+                                                        while(*pbuffer && j<512 && *pbuffer != ' ' && *pbuffer != '\n')
                                                         {
                                                                 *filename1_pointer = *pbuffer;
                                                                 pbuffer++;
@@ -322,4 +347,23 @@ int main()
                         }
                 }
         }
+}
+
+int mod(int a, int b)
+{
+        while(a >= b)
+        {
+                a =a-b;
+        }
+        return a;
+}
+
+int div(int a, int b)
+{
+        int q = 0;
+        while((q*b) <= a)
+        {
+                q++;
+        }
+        return q-1;
 }
