@@ -57,7 +57,6 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                 {
                         if(ax == 2)
                         {
-                            printString("sector\0");
                                 readSector(bx, cx);
                         }
                         else
