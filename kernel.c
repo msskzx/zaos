@@ -1,3 +1,4 @@
+
 void handleInterrupt21(int, int, int, int);
 void printString(char*);
 void readString(char*);
@@ -5,34 +6,108 @@ int mod(int,int);
 int div(int,int);
 void readSector(char*, int);
 void readFile(char*, char*);
-void executeProgram(char*, int);
+void executeProgram(char*);
 void terminate();
 void writeFile(char*, char*, int);
 void writeSector(char*, int);
 void deleteFile(char*);
-
+void handleTimerInterrupt(int ,int);
+int processTableActive [8] ;
+int processTableSP [8] ;
+int currentProcess ;
+int Quantum ;
 
 int main()
 {
+        int i ;
+     
+        Quantum =0 ;
+        for(i=0 ;i<8 ;i++)
+        {
+                processTableActive [i]=0 ;
+                processTableSP [i]= 0xFF00 ;
+        }
+        currentProcess=0 ;
         makeInterrupt21();
-        interrupt(0x21, 4, "shell\0", 0x2000, 0);
+        makeTimerInterrupt();
+     // interrupt(0x21, 4, "shell\0", 0, 0);
+       interrupt(0x21, 4, "hello1\0", 0, 0);
+       interrupt(0x21, 4, "hello2\0", 0, 0);
+}
 
-        while(1) ;
+void handleTimerInterrupt(int segment, int sp)
+{
+        int i ;
+        int nextProcess ;
+        int newSegment ;
+        int newSP ;
+        int counter  ;
+    //    currentProcess = (segment-2)/0x1000 ;
+        Quantum++ ;
+        if(Quantum==100)
+        {
+                i=1 ;
+                processTableSP[currentProcess]= sp ;
+                
+             while(i<8)
+                {
+                        nextProcess =mod((currentProcess+i),8) ;
+                        if(processTableActive[nextProcess]==1)
+                        {
+                        currentProcess = nextProcess ;
+                        break  ;
+                        }
+                         i++ ;
+
+                }
+              
+
+                Quantum =0 ;
+                if(i ==8)
+                {
+
+                     returnFromTimer(segment,sp);
+
+                }
+                else {
+                        
+                        newSegment = (nextProcess+2)*0x1000 ;
+                        newSP = processTableSP[nextProcess];
+                returnFromTimer(newSegment, newSP);
+                
+
+                }
+
+
+
+        }
+        else {
+        newSegment = (currentProcess+2)*0x1000 ;
+         newSP = processTableSP[currentProcess];
+         
+        returnFromTimer(newSegment,newSP);
+      //  printString("tic\0");
+      }
+
+        
 }
 
 void terminate()
 {
-        char shell [6];
-        char* p = shell;
-        *p='s';
-        *(p+1)='h';
-        *(p+2)='e';
-        *(p+3)='l';
-        *(p+4)='l';
-        *(p+5)='\0';
-        //makeInterrupt21();
+        // char shell [6];
+        // char* p = shell;
+        // *p='s';
+        // *(p+1)='h';
+        // *(p+2)='e';
+        // *(p+3)='l';
+        // *(p+4)='l';
+        // *(p+5)='\0';
+        // //makeInterrupt21();
 
-        interrupt(0x21, 4, shell, 0x2000, 0);
+        // interrupt(0x21, 4, shell, 0x2000, 0);
+        setKernelDataSegment() ;
+        processTableActive[currentProcess]=0 ;
+        while(1);
 
 }
 
@@ -69,7 +144,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                 {
                                         if(ax == 4)
                                         {
-                                                executeProgram(bx, cx);
+                                                printString(bx);
+                                                executeProgram(bx);
                                         }
                                         else
                                         {
@@ -385,13 +461,36 @@ void writeSector(char* buffer, int sector){
         return;
 }
 
-void executeProgram(char* name, int segment)
+void executeProgram(char* name )
 {
         char content [13312];
         char *pointer_content;
         int address = 0;
+        int segment =0 ;
+        int i ;
+        
+        setKernelDataSegment();
+        for( i=0 ; i<8 ;i++)
+        {
+                if(processTableActive[i]==0)
+                {
+                        
+                        processTableActive[i]=1 ;
+                        segment= (i+2)*0x1000 ;
+                        
+                        break ;
+                }
+        }
+       
+        restoreDataSegment() ;
+
         // Loading the program into a buffer
         //printString(content);
+        if(segment ==0 )
+        {
+                printString("No Free Space \0");
+        }
+        else {
         readFile(name, content);
 
         // Transferring the program into the bottom of the segment where you want it to run.
@@ -407,7 +506,11 @@ void executeProgram(char* name, int segment)
 
         // Setting the segment registers to that segment and setting the stack pointer
         // to the program’s stack and jumping to the program.
-        launchProgram(segment);
+        
+         initializeProgram(segment) ;
+        // launchProgram(segment);
+         
+        }
 }
 
 void writeFile(char* name, char* buffer, int secNum)
