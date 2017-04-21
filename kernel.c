@@ -20,7 +20,7 @@ int Quantum ;
 int main()
 {
         int i ;
-     
+
         Quantum =0 ;
         for(i=0 ;i<8 ;i++)
         {
@@ -48,19 +48,20 @@ void handleTimerInterrupt(int segment, int sp)
         {
                 i=1 ;
                 processTableSP[currentProcess]= sp ;
-                
+
              while(i<8)
                 {
                         nextProcess =mod((currentProcess+i),8) ;
                         if(processTableActive[nextProcess]==1)
                         {
                         currentProcess = nextProcess ;
+
                         break  ;
                         }
                          i++ ;
 
                 }
-              
+
 
                 Quantum =0 ;
                 if(i ==8)
@@ -70,11 +71,11 @@ void handleTimerInterrupt(int segment, int sp)
 
                 }
                 else {
-                        
-                        newSegment = (nextProcess+2)*0x1000 ;
-                        newSP = processTableSP[nextProcess];
+
+                        newSegment = (currentProcess+2)*0x1000 ;
+                        newSP = processTableSP[currentProcess];
                 returnFromTimer(newSegment, newSP);
-                
+
 
                 }
 
@@ -84,12 +85,12 @@ void handleTimerInterrupt(int segment, int sp)
         else {
         newSegment = (currentProcess+2)*0x1000 ;
          newSP = processTableSP[currentProcess];
-         
-        returnFromTimer(newSegment,newSP);
+
+        returnFromTimer(segment,sp);
       //  printString("tic\0");
       }
 
-        
+
 }
 
 void terminate()
@@ -144,7 +145,6 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                 {
                                         if(ax == 4)
                                         {
-                                                printString(bx);
                                                 executeProgram(bx);
                                         }
                                         else
@@ -468,20 +468,20 @@ void executeProgram(char* name )
         int address = 0;
         int segment =0 ;
         int i ;
-        
+
         setKernelDataSegment();
         for( i=0 ; i<8 ;i++)
         {
                 if(processTableActive[i]==0)
                 {
-                        
+
                         processTableActive[i]=1 ;
                         segment= (i+2)*0x1000 ;
-                        
+
                         break ;
                 }
         }
-       
+
         restoreDataSegment() ;
 
         // Loading the program into a buffer
@@ -506,10 +506,10 @@ void executeProgram(char* name )
 
         // Setting the segment registers to that segment and setting the stack pointer
         // to the program’s stack and jumping to the program.
-        
+
          initializeProgram(segment) ;
         // launchProgram(segment);
-         
+
         }
 }
 
