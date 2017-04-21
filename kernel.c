@@ -28,11 +28,13 @@ int main()
                 processTableSP [i]= 0xFF00 ;
         }
         currentProcess=0 ;
-        makeInterrupt21();
         makeTimerInterrupt();
+        makeInterrupt21();
+
      // interrupt(0x21, 4, "shell\0", 0, 0);
        interrupt(0x21, 4, "hello1\0", 0, 0);
        interrupt(0x21, 4, "hello2\0", 0, 0);
+       interrupt(0x21, 5, 0, 0, 0);
 }
 
 void handleTimerInterrupt(int segment, int sp)
@@ -46,6 +48,8 @@ void handleTimerInterrupt(int segment, int sp)
         Quantum++ ;
         if(Quantum==100)
         {
+
+          //  printString("salem\nsalem\nsalem\0");
                 i=1 ;
                 processTableSP[currentProcess]= sp ;
 
@@ -66,7 +70,7 @@ void handleTimerInterrupt(int segment, int sp)
                 Quantum =0 ;
                 if(i ==8)
                 {
-
+                //    printString("mm\nmm\nmm\0");
                      returnFromTimer(segment,sp);
 
                 }
@@ -83,8 +87,9 @@ void handleTimerInterrupt(int segment, int sp)
 
         }
         else {
-        newSegment = (currentProcess+2)*0x1000 ;
-         newSP = processTableSP[currentProcess];
+        //  printString("salem\0");
+        // newSegment = (currentProcess+2)*0x1000 ;
+        //  newSP = processTableSP[currentProcess];
 
         returnFromTimer(segment,sp);
       //  printString("tic\0");
@@ -145,6 +150,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                 {
                                         if(ax == 4)
                                         {
+                                            //    printString(bx);
                                                 executeProgram(bx);
                                         }
                                         else
@@ -480,6 +486,7 @@ void executeProgram(char* name )
 
                         break ;
                 }
+
         }
 
         restoreDataSegment() ;
