@@ -27,14 +27,15 @@ int main()
                 processTableActive [i]=0 ;
                 processTableSP [i]= 0xFF00 ;
         }
-        currentProcess=0 ;
+        currentProcess=-1 ;
         makeTimerInterrupt();
         makeInterrupt21();
 
-     // interrupt(0x21, 4, "shell\0", 0, 0);
-       interrupt(0x21, 4, "hello1\0", 0, 0);
-       interrupt(0x21, 4, "hello2\0", 0, 0);
-       interrupt(0x21, 5, 0, 0, 0);
+      interrupt(0x21, 4, "shell\0", 0, 0);
+    // interrupt(0x21, 4, "hello1\0", 0, 0);
+     // interrupt(0x21, 4, "hello2\0", 0, 0);
+        while(1);
+    //  interrupt(0x21, 5, 0, 0, 0);
 }
 
 void handleTimerInterrupt(int segment, int sp)
@@ -44,10 +45,13 @@ void handleTimerInterrupt(int segment, int sp)
         int newSegment ;
         int newSP ;
         int counter  ;
-    //    currentProcess = (segment-2)/0x1000 ;
+
+        // currentProcess = (segment-2)/0x1000 ;
+
         Quantum++ ;
         if(Quantum==100)
         {
+
 
           //  printString("salem\nsalem\nsalem\0");
                 i=1 ;
@@ -59,7 +63,6 @@ void handleTimerInterrupt(int segment, int sp)
                         if(processTableActive[nextProcess]==1)
                         {
                         currentProcess = nextProcess ;
-
                         break  ;
                         }
                          i++ ;
@@ -75,7 +78,7 @@ void handleTimerInterrupt(int segment, int sp)
 
                 }
                 else {
-
+                  //  printString("salem\0");
                         newSegment = (currentProcess+2)*0x1000 ;
                         newSP = processTableSP[currentProcess];
                 returnFromTimer(newSegment, newSP);
@@ -150,7 +153,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                 {
                                         if(ax == 4)
                                         {
-                                            //    printString(bx);
+                                        //      printString(bx);
                                                 executeProgram(bx);
                                         }
                                         else
@@ -480,12 +483,12 @@ void executeProgram(char* name )
         {
                 if(processTableActive[i]==0)
                 {
-
                         processTableActive[i]=1 ;
                         segment= (i+2)*0x1000 ;
 
                         break ;
                 }
+
 
         }
 
@@ -513,8 +516,8 @@ void executeProgram(char* name )
 
         // Setting the segment registers to that segment and setting the stack pointer
         // to the program’s stack and jumping to the program.
-
          initializeProgram(segment) ;
+
         // launchProgram(segment);
 
         }
