@@ -351,8 +351,14 @@ int main()
                                                 }
                                                 else
                                                 {
+                                                  if( *pbuffer=='k' && *(pbuffer + 1)=='i' && *(pbuffer + 2)=='l' && *(pbuffer + 3)=='l' && *(pbuffer + 4)==' ' && (*(pbuffer + 6) == 0xd || *(pbuffer + 6) == 0x0 || *(pbuffer + 6) == '\0'))
+                                                  {
+                                                      interrupt(0x21, 8, (int) *(pbuffer + 5), 0, 0);
+                                                  }
+                                                  else {
                                                         interrupt(0x21, 0, "\nBad Command!\n\0", 0, 0);
                                                 }
+                                              }
                                         }
                                 }
                         }

@@ -12,6 +12,7 @@ void writeFile(char*, char*, int);
 void writeSector(char*, int);
 void deleteFile(char*);
 void handleTimerInterrupt(int ,int);
+void killProcess (int);
 int processTableActive [8] ;
 int processTableSP [8] ;
 int currentProcess ;
@@ -27,15 +28,23 @@ int main()
                 processTableActive [i]=0 ;
                 processTableSP [i]= 0xFF00 ;
         }
-        currentProcess=-1 ;
+        currentProcess=0  ;
         makeTimerInterrupt();
         makeInterrupt21();
 
       interrupt(0x21, 4, "shell\0", 0, 0);
     // interrupt(0x21, 4, "hello1\0", 0, 0);
-     // interrupt(0x21, 4, "hello2\0", 0, 0);
+    //  interrupt(0x21, 4, "hello2\0", 0, 0);
         while(1);
     //  interrupt(0x21, 5, 0, 0, 0);
+}
+void killProcess(int process)
+{
+  setKernelDataSegment() ;
+  processTableActive[process]=0 ;
+  while(1);
+
+
 }
 
 void handleTimerInterrupt(int segment, int sp)
@@ -55,14 +64,14 @@ void handleTimerInterrupt(int segment, int sp)
 
           //  printString("salem\nsalem\nsalem\0");
                 i=1 ;
-                processTableSP[currentProcess]= sp ;
+                processTableSP[currentProcess-1]= sp ;
 
              while(i<8)
                 {
-                        nextProcess =mod((currentProcess+i),8) ;
+                        nextProcess =mod((currentProcess+i-1),8) ;
                         if(processTableActive[nextProcess]==1)
                         {
-                        currentProcess = nextProcess ;
+                        currentProcess = nextProcess+1 ;
                         break  ;
                         }
                          i++ ;
@@ -79,8 +88,8 @@ void handleTimerInterrupt(int segment, int sp)
                 }
                 else {
                   //  printString("salem\0");
-                        newSegment = (currentProcess+2)*0x1000 ;
-                        newSP = processTableSP[currentProcess];
+                        newSegment = (currentProcess+1)*0x1000 ;
+                        newSP = processTableSP[currentProcess-1];
                 returnFromTimer(newSegment, newSP);
 
 
@@ -115,7 +124,7 @@ void terminate()
 
         // interrupt(0x21, 4, shell, 0x2000, 0);
         setKernelDataSegment() ;
-        processTableActive[currentProcess]=0 ;
+        processTableActive[currentProcess-1]=0 ;
         while(1);
 
 }
@@ -179,8 +188,14 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                                                                 deleteFile(bx);
                                                                         }
                                                                         else {
+                                                                          if(ax==8)
+                                                                          {
+                                                                                  killProcess(bx);
+                                                                          }
+                                                                          else {
                                                                                 printString("Error! No such function!\0");
                                                                         }
+                                                                      }
                                                                 }
                                                         }
                                                 }
