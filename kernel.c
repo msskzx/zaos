@@ -42,9 +42,8 @@ void killProcess(int process)
 {
   setKernelDataSegment() ;
   processTableActive[process]=0 ;
-  // while(1);
-
-
+  currentProcess = 0;
+  while(1);
 }
 
 void handleTimerInterrupt(int segment, int sp)
