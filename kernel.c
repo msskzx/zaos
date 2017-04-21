@@ -42,7 +42,7 @@ void killProcess(int process)
 {
   setKernelDataSegment() ;
   processTableActive[process]=0 ;
-  while(1);
+  // while(1);
 
 
 }
@@ -188,7 +188,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx) {
                                                                                 deleteFile(bx);
                                                                         }
                                                                         else {
-                                                                          if(ax==8)
+                                                                          if(ax==9)
                                                                           {
                                                                                   killProcess(bx);
                                                                           }
