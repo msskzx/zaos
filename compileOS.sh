@@ -42,6 +42,9 @@ ld86 -o shell -d shell.o lib.o
 ./loadFile message.txt
 ./loadFile tstpr2
 ./loadFile tstprg
+./loadFile hello1
+./loadFile hello2
+./loadFile phello
 # excute
 # chmod +x compileOS.sh
 
